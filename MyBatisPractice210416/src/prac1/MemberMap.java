@@ -17,7 +17,8 @@ public class MemberMap {
 		map.put("id", "");
 		map.put("password", "");
 		map.put("nickname", "");
-		//깃 연습
+		//깃 연습2222222
+		//dfdfdf
 	}
 
 	public Map<String, Object> getMap() {
