@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo">
+	<select id="proc_param2" parameterType="com.vo.DeptVO" statementType="CALLABLE">
+		{call proc_param2(#{empno, mode=IN, jdbcType=NUMERIC, javaType=int},#{report, mode=OUT, jdbcType=VARCHAR, javaType=String})}
+	</select>
+	<delete id="boardMDelete" parameterType="map">
+		DELETE FROM board_master
+		 WHERE b_no = #{b_no}	
+	</delete>
+	<delete id="boardSDelete" parameterType="map">
+		DELETE FROM board_sub
+		 WHERE b_no = #{b_no}	
+	</delete>
+	<update id="boardMUpdate" parameterType="map">
+		UPDATE board_master
+		   SET b_title = #{b_title}
+		      ,b_date = TO_CHAR(sysdate,'YYYY-MM-DD')
+		      ,b_content = #{b_content}
+		      ,b_pw = #{b_pw}
+		 WHERE b_no = #{b_no}	
+	</update>
+	<update id="boardSUpdate" parameterType="map">
+		UPDATE board_sub
+		   SET b_file = #{b_file}
+		 WHERE b_no = #{b_no} 	
+	</update>
+	<select id="getTotal" resultType="map" parameterType="string">
+		SELECT count(b_no) total, 1 temp FROM board_master
+	</select>
+	<insert id="boardMINS" parameterType="map">
+		INSERT INTO board_master_t(bm_no, bm_title, bm_writer
+		                        ,bm_content, bm_date, bm_pw
+		                        ,bm_email)
+		          values(seq_board_no.nextval,#{bm_title}
+		                ,#{bm_writer},#{bm_content}
+		                ,TO_CHAR(sysdate,'YYYY-MM-DD')
+		                ,#{bm_pw},#{bm_email})	
+	</insert>
+	<select id="getBoardList" parameterType="com.vo.BoardMasterVO" resultType="map">
+		SELECT bm.bm_no, bm.bm_title, bm.bm_writer
+		     , bm.bm_content, bm.bm_hit, bm.bm_date
+		     , bm.bm_group, bm.bm_pos, bm.bm_step
+		     , bs.bs_file
+		  FROM board_master_t bm, board_sub_t bs
+		 WHERE bm.bm_no = bs.bm_no(+) 
+			<if test="bm_no>0">
+				AND bm.bm_no=#{bm_no}
+			</if>
+			<if test='cb_search!=null and cb_search.equals("bm_title")'>
+				AND bm.bm_title LIKE '%'||#{tb_search}||'%'
+			</if>
+			<if test='cb_search!=null and cb_search.equals("bm_content")'>
+				AND bm.bm_content LIKE '%'||#{tb_search}||'%'
+			</if>
+			<if test='cb_search!=null and cb_search.equals("bm_writer")'>
+				AND bm.bm_writer LIKE '%'||#{tb_search}||'%'
+			</if>
+			<if test='bm_date!=null and bm_date.length()>0'>
+				AND bm.bm_date = #{bm_date}
+			</if>
+			ORDER BY bm_group desc, bm_step asc			
+	</select>
+​
+    <!-- 	
+	현재 내가 열어본 글의 b_group=32 b_pos=0 b_step=0일때
+	 -->
+	<update id="bStepUpdate" parameterType="map">
+		UPDATE board_master
+		   SET b_step = b_step + 1
+		 WHERE b_group = #{b_group}<!-- 32 -->
+		   AND b_step > #{b_step}  <!--  0 -->
+	</update>
+	<select id="getBgroup" parameterType="string" resultType="int">
+		SELECT NVL((SELECT /*+index_desc(board_master i_group) */ b_group
+		            FROM board_master
+		           WHERE rownum = 1 
+		             AND b_group > 0)
+		          ,0)+1 b_group
+		  FROM dual  	
+	</select>
+	<insert id="boardMInsert" parameterType="map">
+		INSERT INTO board_master(b_no, b_title, b_name, b_content
+		                        ,b_pw, b_date,b_group, b_pos, b_step)
+		      VALUES(seq_boardMaster_no.nextval,#{b_title},#{b_name},#{b_content}
+		            ,#{b_pw},TO_CHAR(sysdate,'YYYY-MM-DD')
+		            ,#{b_group},#{b_pos},#{b_step})
+	</insert>
+	<insert id="boardSInsert" parameterType="map">
+		<selectKey keyProperty="b_no" resultType="int" order="BEFORE">
+			SELECT /*+index_desc(board_master BOARDM_NO_PK)*/ b_no 
+              FROM board_master
+             WHERE rownum =1
+		</selectKey>
+		INSERT INTO board_sub(b_no, b_seq, b_file, b_size)
+		      VALUES(#{b_no},1
+		            ,#{b_file},#{b_size})		
+	</insert>
+	<insert id="boardSInsert2" parameterType="map">
+		INSERT INTO board_sub(b_no, b_seq, b_file, b_size)
+		      VALUES(#{b_no},1
+		            ,#{b_file},#{b_size})		
+	</insert>
+	<update id="bHitUpdate" parameterType="int">
+		UPDATE board_master
+		   SET b_hit = b_hit + 1
+		 WHERE b_no = #{value} 
+	</update>
+</mapper>	

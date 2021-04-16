@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+   PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+   <environments default="development">
+      <environment id="development">
+         <transactionManager type="JDBC" />
+         <dataSource type="POOLED">
+         
+         <!-- datasource까지는 완전 똑같고, property의 value는 내 설정 작성 
+				db.property 파일을 따로 작성한다면 vlaue에 ${driver} 이런식으로 작성하면 됨.  -->
+				
+            <property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+            <property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:orcl11" />
+            <property name="username" value="semip" />
+            <property name="password" value="tiger" />
+            
+         </dataSource>
+      </environment>
+   </environments>
+   <mappers>
+   <!-- mapper란  SQL을 호출하기 위한 인터페이스이다. -->
+   <!-- mapper resource="패키지명/매퍼파일이름.xml" <- 경로 -->
+   	  <mapper resource="prac1/Mapper.xml" />
+   </mappers>
+</configuration>

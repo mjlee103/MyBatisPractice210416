@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mybatis.mapper.testMapper">
+ <!-- 여러 매퍼 파일을 만들었을떼,  
+ id가 동일한 경우가 있다면,  mybatitest.SqlcodeMapper.refresh 이런식으로 써주면 에러가 발생하지 않는다!-->
+	<resultMap id="selectMapList" type="map">
+		<result column="MEM_ID_VC" property="id" />
+		<result column="MEM_PW_VC" property="password" />
+		<result column="MEM_NICK_VC" property="nickname" />
+	</resultMap>
+	<!-- resultType일 때는 resultType="java.util.Map 과  resultType="Map"이 같음. 하지만 전자가 더 직관적
+			우리는 resultMap으로 지정했기 때문에 상관 없긴 함.  -->
+	<select id="selectList" parameterType="map" resultMap="selectMapList">
+		SELECT id, nickname FROM MSGR_MEMBER
+	</select>
+	
+	
+	
+		<!-- SELECT * FROM MSGR_MEMBER WHERE MEM_NICK_VC='nick01' "" 쓰면 안됨. -->
+	
+
+</mapper>
